@@ -1,0 +1,21 @@
+//
+//  Prefix header
+//
+//  The contents of this file are implicitly included at the beginning of every source file.
+//
+
+#ifdef __OBJC__
+    #import <Foundation/Foundation.h>
+    #import <CoreGraphics/CoreGraphics.h>
+    #import <SpriteKit/SpriteKit.h>
+#endif
+
+/********* XB_LOG Configurations **********/
+#if defined(DEBUG)
+    // Enable logs
+    #define XB_LOG_ON
+    // Set log level
+    #define XB_LOG_LEVEL XB_LOG_TRACE
+#endif
+
+#include <XBLog/XBLog.h>
