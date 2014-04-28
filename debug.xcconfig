@@ -1,7 +1,0 @@
-
-#include "shared.xcconfig"
-
-// PREPROCESSOR
-
-// Set DEV flag
-GCC_PREPROCESSOR_DEFINITIONS = $(inherited) DEV=1

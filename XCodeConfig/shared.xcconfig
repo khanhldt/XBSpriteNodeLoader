@@ -1,17 +1,12 @@
 
+#include "master/masterShared.xcconfig"
+
 // LINKING
 
 OTHER_LDFLAGS = -dynamic -ObjC -all_load
 
 // BUILD
 
-// Location
-OBJROOT = BuildFiles
-SYMROOT = Binaries
-
-
 // DEPLOYMENT
 
 IPHONEOS_DEPLOYMENT_TARGET = 7.0
-
-PUBLIC_HEADERS_FOLDER_PATH = test

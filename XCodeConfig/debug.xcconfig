@@ -1,0 +1,3 @@
+
+#include "master/masterShared.xcconfig"
+#include "shared.xcconfig"

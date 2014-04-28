@@ -1,0 +1,12 @@
+
+// Copyright @2014 XeBuyt
+// Version 1.0.0
+
+/////////////////////////////////////////////////////
+
+#include "masterShared.xcconfig"
+
+// PREPROCESSOR
+
+// Set DEV flag
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) DEV=1
