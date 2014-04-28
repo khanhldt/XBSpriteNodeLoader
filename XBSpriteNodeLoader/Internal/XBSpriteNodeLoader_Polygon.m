@@ -63,24 +63,24 @@
                 // iphone
                 if (is4Inches) {
                     if (UIDeviceOrientationIsLandscape(orientation)) {
-                        if ([self.delegate respondsToSelector:@selector(transferPolygonPathForIPhone4xRetinaInLandscapeForNode:)]) {
-                            _path = [self.delegate transferPolygonPathForIPhone4xRetinaInLandscapeForNode:node];
+                        if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPhone4xRetinaInLandscapeForNode:)]) {
+                            _path = [self.delegate createPolygonPathForIPhone4xRetinaInLandscapeForNode:node];
                             break;
                         }
                     }
-                    if ([self.delegate respondsToSelector:@selector(transferPolygonPathForIPhone4xRetinaInPortraitForNode:)]) {
-                        _path = [self.delegate transferPolygonPathForIPhone4xRetinaInPortraitForNode:node];
+                    if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPhone4xRetinaInPortraitForNode:)]) {
+                        _path = [self.delegate createPolygonPathForIPhone4xRetinaInPortraitForNode:node];
                     }
                 }
                 else {
                     if (UIDeviceOrientationIsLandscape(orientation)) {
-                        if ([self.delegate respondsToSelector:@selector(transferPolygonPathForIPhone5xRetinaInLandscapeForNode:)]) {
-                            _path = [self.delegate transferPolygonPathForIPhone5xRetinaInLandscapeForNode:node];
+                        if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPhone5xRetinaInLandscapeForNode:)]) {
+                            _path = [self.delegate createPolygonPathForIPhone5xRetinaInLandscapeForNode:node];
                             break;
                         }
                     }
-                    if ([self.delegate respondsToSelector:@selector(transferPolygonPathForIPhone5xRetinaInPortraitForNode:)]) {
-                        _path = [self.delegate transferPolygonPathForIPhone5xRetinaInPortraitForNode:node];
+                    if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPhone5xRetinaInPortraitForNode:)]) {
+                        _path = [self.delegate createPolygonPathForIPhone5xRetinaInPortraitForNode:node];
                     }
                 }
             }
@@ -89,24 +89,24 @@
                 BOOL isRetina = (fabs([[UIScreen mainScreen] scale] - 2.0) < 0.01);
                 if (isRetina == YES) {
                     if (UIDeviceOrientationIsLandscape(orientation)) {
-                        if ([self.delegate respondsToSelector:@selector(transferPolygonPathForIPadRetinaInLandscapeForNode:)]) {
-                            _path = [self.delegate transferPolygonPathForIPadRetinaInLandscapeForNode:node];
+                        if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPadRetinaInLandscapeForNode:)]) {
+                            _path = [self.delegate createPolygonPathForIPadRetinaInLandscapeForNode:node];
                             break;
                         }
                     }
-                    if ([self.delegate respondsToSelector:@selector(transferPolygonPathForIPadRetinaInPortraitForNode:)]) {
-                        _path = [self.delegate transferPolygonPathForIPadRetinaInPortraitForNode:node];
+                    if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPadRetinaInPortraitForNode:)]) {
+                        _path = [self.delegate createPolygonPathForIPadRetinaInPortraitForNode:node];
                     }
                 }
                 else {
                     if (UIDeviceOrientationIsLandscape(orientation)) {
-                        if ([self.delegate respondsToSelector:@selector(transferPolygonPathForIPadNoretinaInLandscapeForNode:)]) {
-                            _path = [self.delegate transferPolygonPathForIPadNoretinaInLandscapeForNode:node];
+                        if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPadNoretinaInLandscapeForNode:)]) {
+                            _path = [self.delegate createPolygonPathForIPadNoretinaInLandscapeForNode:node];
                             break;
                         }
                     }
-                    if ([self.delegate respondsToSelector:@selector(transferPolygonPathForIPadNoretinaInPortraitForNode:)]) {
-                        _path = [self.delegate transferPolygonPathForIPadNoretinaInPortraitForNode:node];
+                    if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPadNoretinaInPortraitForNode:)]) {
+                        _path = [self.delegate createPolygonPathForIPadNoretinaInPortraitForNode:node];
                     }
                 }
             }
@@ -130,6 +130,11 @@
     
     CGPathRelease(_path);
     _path = NULL;
+}
+
+- (void) dealloc {
+    
+    [self cleanUp];
 }
 
 @end

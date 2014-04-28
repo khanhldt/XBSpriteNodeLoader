@@ -51,6 +51,7 @@
 }
 
 - (void) cleanUp {
+    
     XBLogMethod();
     // Nothing special to clean up.
 }

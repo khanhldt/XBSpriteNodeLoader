@@ -1,7 +1,32 @@
-//
-//  release.xcconfig
-//  XBSpriteNodeLoader
-//
-//  Created by Khanh Le Do on 27/4/14.
-//  Copyright (c) 2014 XeBuyt. All rights reserved.
-//
+
+#include "shared.xcconfig"
+
+
+
+// BUILD
+
+// Make sure to build binaries for all the architures.
+ONLY_ACTIVE_ARCH = NO
+
+// Make sure to validate the product after build.
+VALIDATE_PRODUCT = YES
+
+
+
+
+// FOR STATIC ANALYZER
+
+// Enable to run static analyzer in deep mode
+RUN_CLANG_STATIC_ANALYZER = YES
+CLANG_STATIC_ANALYZER_MODE = deep
+
+
+
+
+// FOR SECURITY
+
+// Telling XCode to perform deployment postprocessing such as stripping debug symbols.
+DEPLOYMENT_POSTPROCESSING = YES
+
+// Strip debugging symbols when copying the binary.
+COPY_PHASE_STRIP = YES

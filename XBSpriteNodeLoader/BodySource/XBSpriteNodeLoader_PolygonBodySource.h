@@ -13,15 +13,15 @@
 // If the condition is met but the corresponding callback is not implemented, a rectangular shape that surrounds the frame shall be used.
 
 @optional
-- (CGPathRef) transferPolygonPathForIPhone4xRetinaInPortraitForNode:(SKSpriteNode*)node;
-- (CGPathRef) transferPolygonPathForIPhone5xRetinaInPortraitForNode:(SKSpriteNode*)node;
-- (CGPathRef) transferPolygonPathForIPadNoretinaInPortraitForNode:(SKSpriteNode*)node;
-- (CGPathRef) transferPolygonPathForIPadRetinaInPortraitForNode:(SKSpriteNode*)node;
+- (CGPathRef) createPolygonPathForIPhone4xRetinaInPortraitForNode:(SKSpriteNode*)node;
+- (CGPathRef) createPolygonPathForIPhone5xRetinaInPortraitForNode:(SKSpriteNode*)node;
+- (CGPathRef) createPolygonPathForIPadNoretinaInPortraitForNode:(SKSpriteNode*)node;
+- (CGPathRef) createPolygonPathForIPadRetinaInPortraitForNode:(SKSpriteNode*)node;
 
 // Revert to portrait if landscape not found.
-- (CGPathRef) transferPolygonPathForIPhone4xRetinaInLandscapeForNode:(SKSpriteNode*)node;
-- (CGPathRef) transferPolygonPathForIPhone5xRetinaInLandscapeForNode:(SKSpriteNode*)node;
-- (CGPathRef) transferPolygonPathForIPadNoretinaInLandscapeForNode:(SKSpriteNode*)node;
-- (CGPathRef) transferPolygonPathForIPadRetinaInLandscapeForNode:(SKSpriteNode*)node;
+- (CGPathRef) createPolygonPathForIPhone4xRetinaInLandscapeForNode:(SKSpriteNode*)node;
+- (CGPathRef) createPolygonPathForIPhone5xRetinaInLandscapeForNode:(SKSpriteNode*)node;
+- (CGPathRef) createPolygonPathForIPadNoretinaInLandscapeForNode:(SKSpriteNode*)node;
+- (CGPathRef) createPolygonPathForIPadRetinaInLandscapeForNode:(SKSpriteNode*)node;
 
 @end
