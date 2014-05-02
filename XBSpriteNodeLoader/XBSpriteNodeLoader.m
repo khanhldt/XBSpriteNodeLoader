@@ -22,6 +22,7 @@ id<XBSpriteNodeLoader_RectangleBodySource> XBSpriteNodeLoader_RectangleBodySourc
 }
 
 static int _sNumberOfCachedAtlas;
+static BOOL _sSharingIphoneRetinaAndIpadNonRetina = NO;
 static NSMutableArray *_sCachedAtlastNames;
 static NSMutableDictionary *_sCachedAtlases;
 
@@ -67,35 +68,39 @@ static NSMutableDictionary *_sCachedAtlases;
     [[self class] cleanUp];
 }
 
++ (void) setShareImagesBetweenIphoneRetinaAndIpadNonRetina:(BOOL)sharing {
+    
+    _sSharingIphoneRetinaAndIpadNonRetina = sharing;
+}
+
 #pragma mark Factory Methods
 
 + (XBSpriteNodeLoader*) createRectangleSpriteNodeLoaderFromAtlas:(NSString*)atlasName withTexture:(NSString*)textureName bodySource:(id<XBSpriteNodeLoader_RectangleBodySource>)delegate {
     
-    atlasName = [self _makeFinalAtlasName:atlasName];
+    textureName = [self _makeFinalTextureName:textureName];
     [self _loadOrCreateAtlasForKey:atlasName];
     return [[XBSpriteNodeLoader_Rectangle alloc] initWithTextureName:textureName andAtlasName:atlasName andBodySource:delegate];
 }
 
 + (XBSpriteNodeLoader*) createCircleSpriteNodeLoaderFromAtlas:(NSString*)atlasName withTexture:(NSString*)textureName bodySource:(id<XBSpriteNodeLoader_CircleBodySource>)delegate {
     
-    atlasName = [self _makeFinalAtlasName:atlasName];
+    textureName = [self _makeFinalTextureName:textureName];
     [self _loadOrCreateAtlasForKey:atlasName];
     return [[XBSpriteNodeLoader_Circle alloc] initWithTextureName:textureName andAtlasName:atlasName andBodySource:delegate];
 }
 
 + (XBSpriteNodeLoader*) createPolygonSpriteNodeLoaderFromAtlas:(NSString*)atlasName withTexture:(NSString*)textureName bodySource:(id<XBSpriteNodeLoader_PolygonBodySource>)delegate {
     
-    atlasName = [self _makeFinalAtlasName:atlasName];
+    textureName = [self _makeFinalTextureName:textureName];
     [self _loadOrCreateAtlasForKey:atlasName];
     return [[XBSpriteNodeLoader_Polygon alloc] initWithTextureName:textureName andAtlasName:atlasName andBodySource:delegate];
 }
 
 + (XBSpriteNodeLoader*) createEllipseSpriteNodeLoaderFromAtlas:(NSString*)atlasName withTexture:(NSString*)textureName bodySource:(id<XBSpriteNodeLoader_PolygonBodySource>)delegate {
     
-    atlasName = [self _makeFinalAtlasName:atlasName];
+    textureName = [self _makeFinalTextureName:textureName];
     [self _loadOrCreateAtlasForKey:atlasName];
     return [[XBSpriteNodeLoader_Polygon alloc] initWithTextureName:textureName andAtlasName:atlasName andBodySource:delegate];
-    
 }
 
 + (void) cleanUp {
@@ -106,26 +111,39 @@ static NSMutableDictionary *_sCachedAtlases;
 
 #pragma mark Private Methods
 
-+ (NSString*) _makeFinalAtlasName:(NSString*)atlasName {
++ (NSString*) _makeFinalTextureName:(NSString*)textureName {
     
-    static NSString *ATLAST_POSFIX = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        if (ATLAST_POSFIX == nil) {
-            if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
-                ATLAST_POSFIX = @"";    // No appendix
-            }
-            else {
-                // iPad, check if using retina or not.
-                if (fabs([UIScreen mainScreen].scale - 2.0) < 0.001) {
-                    ATLAST_POSFIX = @"-ipad@2x";
-                } else {
-                    ATLAST_POSFIX = @"-ipad";
-                }
-            }
+    static NSString * const AT_TWO_X = @"@2x";
+    if (_sSharingIphoneRetinaAndIpadNonRetina) {
+        if ([textureName hasSuffix:AT_TWO_X] == NO) {
+            textureName = [NSString stringWithFormat:@"%@%@", textureName, AT_TWO_X];
         }
-    });
-    return [NSString stringWithFormat:@"%@%@", atlasName, ATLAST_POSFIX];
+    }
+    return textureName;
+}
+
++ (SKTextureAtlas*) _tryFindAtlasName:(NSString*)atlasName {
+    
+    SKTextureAtlas *atlas = nil;
+    
+    if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) {
+        
+        // iPad, check if using retina or not.
+        if (fabs([UIScreen mainScreen].scale - 2.0) < 0.001) {
+            atlas = [SKTextureAtlas atlasNamed:[NSString stringWithFormat:@"%@%@", atlasName, @"-ipad@2x"]];
+        }
+        
+        // Either retina atlas directory doesn't exist or the screen is non-retina, try to load ipad atlas.
+        if (atlas == nil) {
+            atlas = [SKTextureAtlas atlasNamed:[NSString stringWithFormat:@"%@%@", atlasName, @"-ipad"]];
+        }
+    }
+    
+    // Either this is an iPhone or both non-retina and retina iPad folders don't exist, try to load the default folder
+    if (atlas == nil) {
+        atlas = [SKTextureAtlas atlasNamed:atlasName];
+    }
+    return atlas;
 }
 
 + (SKTextureAtlas*) _loadOrCreateAtlasForKey:(NSString*)atlasName {
@@ -137,8 +155,9 @@ static NSMutableDictionary *_sCachedAtlases;
     
     SKTextureAtlas *atlas = [_sCachedAtlases objectForKey:atlasName];
     if (atlas == nil) {
+        
         XBLog_Debug(@"Load Atlas", @"Atlas not found for key %@. To create one and add.", atlasName);
-        atlas = [SKTextureAtlas atlasNamed:atlasName];
+        atlas = [self _tryFindAtlasName:atlasName];
         if ([_sCachedAtlases count] == _sNumberOfCachedAtlas) {
             // Full, need to remove the last used element (which is at the end of the atlas name array)
             NSString *lastAtlas = [_sCachedAtlastNames lastObject];
@@ -182,8 +201,13 @@ static NSMutableDictionary *_sCachedAtlases;
     XBLog_Debug(@"", @"Texture size: %0.2f - %0.2f", texture.size.width, texture.size.height);
     SKSpriteNode *node = [SKSpriteNode spriteNodeWithTexture:texture];
     if (scaling) {
-        node.xScale = frame.size.width / texture.size.width;
-        node.yScale = frame.size.height / texture.size.height;
+        // Only scale if really needed to
+        if (fabs(frame.size.width - texture.size.width) > 0.001) {
+            node.xScale = frame.size.width / texture.size.width;
+        }
+        if (fabs(frame.size.height - texture.size.height) > 0.001) {
+            node.yScale = frame.size.height / texture.size.height;
+        }
     }
     node.name = name;
     node.position = frame.origin;

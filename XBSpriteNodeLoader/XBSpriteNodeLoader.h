@@ -23,6 +23,13 @@
 + (void) setMaxNumberOfCachedAtlas:(int)numberOfCachedAtlas;
 
 /**
+ * Call this method to allow using the same images (with the convention of @2x postfix) for iphone retina and iPad non-retina to reduce the size of the binary if wanting to.
+ * By default, this is NOT enabled.
+ * By enabling this, the creation of any XBSpriteNodeLoader shall try to add @2x at the end of the textureName if it's not already there.
+ */
++ (void) setShareImagesBetweenIphoneRetinaAndIpadNonRetina:(BOOL)sharing;
+
+/**
  * Keep this instance around for loading the same sprite node as it has some cached data that makes the loading faster.
  */
 + (XBSpriteNodeLoader*) createRectangleSpriteNodeLoaderFromAtlas:(NSString*)atlasName withTexture:(NSString*)textureName bodySource:(id<XBSpriteNodeLoader_RectangleBodySource>)delegate;

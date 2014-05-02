@@ -10,12 +10,30 @@
     #import <SpriteKit/SpriteKit.h>
 #endif
 
+
 /********* XB_LOG Configurations **********/
-#if defined(DEBUG)
+#if defined(DEV)
+
     // Enable logs
     #define XB_LOG_ON
-    // Set log level
-    #define XB_LOG_LEVEL XB_LOG_TRACE
+
+    // Set log level (info for DEV build and debug for DEBUG build)
+    #if defined(DEBUG)
+
+        #define XB_LOG_LEVEL XB_LOG_DEBUG
+
+    #else
+
+        #define XB_LOG_LEVEL XB_LOG_INFO
+
+    #endif
+
+#else
+
+    // Explicitly disable logs
+    #undef XB_LOG_ON
+
 #endif
 
 #include <XBLog/XBLog.h>
+
