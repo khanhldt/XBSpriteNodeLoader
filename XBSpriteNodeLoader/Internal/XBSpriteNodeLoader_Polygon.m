@@ -29,6 +29,8 @@
         self.delegate = delegate;
         _pathLoadLock = [[NSLock alloc] init];
         _anchorPoint = CGPointMake(0.5, 0.5);
+        
+        // BUG: Should verify the requirements of the delegate right away here
     }
     return self;
 }
@@ -50,66 +52,67 @@
         [_pathLoadLock lock];
         
         // Double check before creation of path
-        while (_path == NULL) {
-            
-            // Gather current info
-            UIUserInterfaceIdiom idiom = [[UIDevice currentDevice] userInterfaceIdiom];
-            UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
-            BOOL is4Inches = (fabsf([UIScreen mainScreen].bounds.size.height - 568.0) < 0.01);
-            XBLog_Debug(@"Configure Body Physics", @"idiom: %@ - orientation: %@ - is 4 inches: %@", (idiom==UIUserInterfaceIdiomPhone)?@"iPhone":@"iPad", (UIDeviceOrientationIsPortrait(orientation)==YES)?@"Portrait":@"Landscape", is4Inches?@"YES":@"NO");
-            
-            // Get the CGPath
-            if (idiom == UIUserInterfaceIdiomPhone) {
-                // iphone
-                if (is4Inches) {
-                    if (UIDeviceOrientationIsLandscape(orientation)) {
-                        if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPhone4xRetinaInLandscapeForNode:)]) {
-                            _path = [self.delegate createPolygonPathForIPhone4xRetinaInLandscapeForNode:node];
-                            break;
+        if (_path == NULL) {
+            do {
+                // Gather current info
+                UIUserInterfaceIdiom idiom = [[UIDevice currentDevice] userInterfaceIdiom];
+                UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+                BOOL is4Inches = (fabsf([UIScreen mainScreen].bounds.size.height - 568.0) < 0.01);
+                XBLog_Debug(@"Configure Body Physics", @"idiom: %@ - orientation: %@ - is 4 inches: %@", (idiom==UIUserInterfaceIdiomPhone)?@"iPhone":@"iPad", (UIDeviceOrientationIsPortrait(orientation)==YES)?@"Portrait":@"Landscape", is4Inches?@"YES":@"NO");
+                
+                // Get the CGPath
+                if (idiom == UIUserInterfaceIdiomPhone) {
+                    // iphone
+                    if (is4Inches) {
+                        if (UIDeviceOrientationIsLandscape(orientation)) {
+                            if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPhone4xRetinaInLandscapeForNode:)]) {
+                                _path = [self.delegate createPolygonPathForIPhone4xRetinaInLandscapeForNode:node];
+                                break;
+                            }
+                        }
+                        if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPhone4xRetinaInPortraitForNode:)]) {
+                            _path = [self.delegate createPolygonPathForIPhone4xRetinaInPortraitForNode:node];
                         }
                     }
-                    if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPhone4xRetinaInPortraitForNode:)]) {
-                        _path = [self.delegate createPolygonPathForIPhone4xRetinaInPortraitForNode:node];
+                    else {
+                        if (UIDeviceOrientationIsLandscape(orientation)) {
+                            if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPhone5xRetinaInLandscapeForNode:)]) {
+                                _path = [self.delegate createPolygonPathForIPhone5xRetinaInLandscapeForNode:node];
+                                break;
+                            }
+                        }
+                        if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPhone5xRetinaInPortraitForNode:)]) {
+                            _path = [self.delegate createPolygonPathForIPhone5xRetinaInPortraitForNode:node];
+                        }
                     }
                 }
                 else {
-                    if (UIDeviceOrientationIsLandscape(orientation)) {
-                        if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPhone5xRetinaInLandscapeForNode:)]) {
-                            _path = [self.delegate createPolygonPathForIPhone5xRetinaInLandscapeForNode:node];
-                            break;
+                    // ipad
+                    BOOL isRetina = (fabs([[UIScreen mainScreen] scale] - 2.0) < 0.01);
+                    if (isRetina == YES) {
+                        if (UIDeviceOrientationIsLandscape(orientation)) {
+                            if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPadRetinaInLandscapeForNode:)]) {
+                                _path = [self.delegate createPolygonPathForIPadRetinaInLandscapeForNode:node];
+                                break;
+                            }
+                        }
+                        if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPadRetinaInPortraitForNode:)]) {
+                            _path = [self.delegate createPolygonPathForIPadRetinaInPortraitForNode:node];
                         }
                     }
-                    if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPhone5xRetinaInPortraitForNode:)]) {
-                        _path = [self.delegate createPolygonPathForIPhone5xRetinaInPortraitForNode:node];
-                    }
-                }
-            }
-            else {
-                // ipad
-                BOOL isRetina = (fabs([[UIScreen mainScreen] scale] - 2.0) < 0.01);
-                if (isRetina == YES) {
-                    if (UIDeviceOrientationIsLandscape(orientation)) {
-                        if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPadRetinaInLandscapeForNode:)]) {
-                            _path = [self.delegate createPolygonPathForIPadRetinaInLandscapeForNode:node];
-                            break;
+                    else {
+                        if (UIDeviceOrientationIsLandscape(orientation)) {
+                            if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPadNoretinaInLandscapeForNode:)]) {
+                                _path = [self.delegate createPolygonPathForIPadNoretinaInLandscapeForNode:node];
+                                break;
+                            }
+                        }
+                        if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPadNoretinaInPortraitForNode:)]) {
+                            _path = [self.delegate createPolygonPathForIPadNoretinaInPortraitForNode:node];
                         }
                     }
-                    if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPadRetinaInPortraitForNode:)]) {
-                        _path = [self.delegate createPolygonPathForIPadRetinaInPortraitForNode:node];
-                    }
                 }
-                else {
-                    if (UIDeviceOrientationIsLandscape(orientation)) {
-                        if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPadNoretinaInLandscapeForNode:)]) {
-                            _path = [self.delegate createPolygonPathForIPadNoretinaInLandscapeForNode:node];
-                            break;
-                        }
-                    }
-                    if ([self.delegate respondsToSelector:@selector(createPolygonPathForIPadNoretinaInPortraitForNode:)]) {
-                        _path = [self.delegate createPolygonPathForIPadNoretinaInPortraitForNode:node];
-                    }
-                }
-            }
+            } while(0);
         }
         
         // Unlock

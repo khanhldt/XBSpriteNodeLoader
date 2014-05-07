@@ -59,6 +59,7 @@
 		732CC5DA18F9694100CF6F7A /* XBSpriteNodeLoader_CircleBodySource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XBSpriteNodeLoader_CircleBodySource.h; sourceTree = "<group>"; };
 		732CC5DB18F969EF00CF6F7A /* XBSpriteNodeLoader_RectangleBodySource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XBSpriteNodeLoader_RectangleBodySource.h; sourceTree = "<group>"; };
 		732CC5DE18F96A3D00CF6F7A /* XBSpriteNodeLoader_PolygonBodySource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XBSpriteNodeLoader_PolygonBodySource.h; sourceTree = "<group>"; };
+		734397071919493C00B6B377 /* ReleaseNotes.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = ReleaseNotes.rtf; sourceTree = "<group>"; };
 		73A30D68190E2E75007C4F02 /* debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = debug.xcconfig; sourceTree = "<group>"; };
 		73A30D6A190E2E75007C4F02 /* masterAdhoc.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = masterAdhoc.xcconfig; sourceTree = "<group>"; };
 		73A30D6B190E2E75007C4F02 /* masterDebug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = masterDebug.xcconfig; sourceTree = "<group>"; };
@@ -149,6 +150,7 @@
 		73DC2B1A18C763350088B217 = {
 			isa = PBXGroup;
 			children = (
+				734397071919493C00B6B377 /* ReleaseNotes.rtf */,
 				73A30D67190E2E75007C4F02 /* XCodeConfig */,
 				73DC2B2818C763350088B217 /* XBSpriteNodeLoader */,
 				73DC2B3C18C763350088B217 /* XBSpriteNodeLoaderTests */,

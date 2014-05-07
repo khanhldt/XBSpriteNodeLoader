@@ -14,20 +14,33 @@
 
 @interface XBSpriteNodeLoader : NSObject
 
-#pragma mark Static and Factory Methods
+#pragma mark Static Configurations
 
 /**
  * Call this method to set up the number of cached atlases to be used throughout the game.
- * IMPORTANT: Should call this method once during an app life cycle, as calling this method shall reset all the current cached atlases.
+ * IMPORTANT: In general cases, user should call this method only once during an app life cycle, as calling this method shall reset all the current cached atlases and affect on the performance.
  */
 + (void) setMaxNumberOfCachedAtlas:(int)numberOfCachedAtlas;
 
 /**
- * Call this method to allow using the same images (with the convention of @2x postfix) for iphone retina and iPad non-retina to reduce the size of the binary if wanting to.
- * By default, this is NOT enabled.
- * By enabling this, the creation of any XBSpriteNodeLoader shall try to add @2x at the end of the textureName if it's not already there.
+ * Call this method to set the suffix for atlas to be used. This will override the default suffices, that is 
+ * - No suffix for retina iPhone.
+ * - "~ipad" suffix for non-retina iPad.
+ * - "~ipad@2x" suffix for retina iPad.
+ * NOTE that the combination of iPhone device with non-retina display won't take any effect since it's no more supported.
  */
-+ (void) setShareImagesBetweenIphoneRetinaAndIpadNonRetina:(BOOL)sharing;
++ (void) setAtlasSuffix:(NSString*)suffix forDevice:(UIUserInterfaceIdiom)device withRetinaDisplay:(BOOL)isRetinaDisplay;
+
+/**
+ * Call this method to set the suffix for textures to be used. This will override the default suffices, that is
+ * - No suffix for retina iPhone.
+ * - "~ipad" suffix for non-retina iPad.
+ * - "~ipad@2x" suffix for retina iPad.
+ * NOTE that the combination of iPhone device with non-retina display won't take any effect since it's no more supported.
+ */
++ (void) setTextureSuffix:(NSString*)suffix forDevice:(UIUserInterfaceIdiom)device withRetinaDisplay:(BOOL)isRetinaDisplay;
+
+#pragma mark Factory Methods
 
 /**
  * Keep this instance around for loading the same sprite node as it has some cached data that makes the loading faster.

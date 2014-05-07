@@ -22,6 +22,7 @@
 - (id) initWithTextureName:(NSString*)textureName andAtlasName:(NSString*)atlasName andBodySource:(id<XBSpriteNodeLoader_RectangleBodySource>)delegate {
     if (self = [super initWithTextureName:textureName andAtlasName:atlasName]) {
         self.delegate = delegate;
+        // BUG: Should verify the requirements of the delegate right away here
     }
     return self;
 }

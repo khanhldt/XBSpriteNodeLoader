@@ -21,10 +21,23 @@ id<XBSpriteNodeLoader_RectangleBodySource> XBSpriteNodeLoader_RectangleBodySourc
     NSString *_atlasName;
 }
 
-static int _sNumberOfCachedAtlas;
-static BOOL _sSharingIphoneRetinaAndIpadNonRetina = NO;
+#pragma mark Configurations
+
 static NSMutableArray *_sCachedAtlastNames;
 static NSMutableDictionary *_sCachedAtlases;
+static int _sNumberOfCachedAtlas;
+
+static NSString * _sAtlasSuffix_iPhoneRetina = @"@2x";
+static NSString * _sAtlasSuffix_iPadNonRetina = @"~ipad";
+static NSString * _sAtlasSuffix_iPadRetina = @"~ipad@2x";
+
+static NSString * _sTextureSuffix_iPhoneRetina = @"@2x";
+static NSString * _sTextureSuffix_iPadNonRetina = @"~ipad";
+static NSString * _sTextureSuffix_iPadRetina = @"~ipad@2x";
+
+static NSString * __strong * _sCurrentAtlasSuffix = nil;
+static NSString * __strong *_sCurrentTextureSuffix = nil;
+static BOOL _sIsRetina = NO;
 
 #pragma mark Constructors
 
@@ -53,6 +66,26 @@ static NSMutableDictionary *_sCachedAtlases;
         NSObject *defaultObject = [[NSObject alloc] init];
         XBSpriteNodeLoader_CircleBodySource_Default = (id<XBSpriteNodeLoader_CircleBodySource>)defaultObject;
         XBSpriteNodeLoader_RectangleBodySource_Default= (id<XBSpriteNodeLoader_RectangleBodySource>)defaultObject;
+        
+        // Detect current device and retina config
+        if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) {
+            // iPad, check if using retina or not.
+            if (fabs([UIScreen mainScreen].scale - 2.0) < 0.001) {
+                _sCurrentAtlasSuffix = &_sAtlasSuffix_iPadRetina;
+                _sCurrentTextureSuffix = &_sTextureSuffix_iPadRetina;
+                _sIsRetina = YES;
+            } else {
+                _sCurrentAtlasSuffix = &_sAtlasSuffix_iPadNonRetina;
+                _sCurrentTextureSuffix = &_sTextureSuffix_iPadNonRetina;
+                _sIsRetina = NO;
+            }
+        }
+        else {
+            // iPhone, only iPhone retina is supported.
+            _sCurrentAtlasSuffix = &_sAtlasSuffix_iPhoneRetina;
+            _sCurrentTextureSuffix = &_sTextureSuffix_iPhoneRetina;
+            _sIsRetina = YES;
+        }
     }
 }
 
@@ -68,38 +101,76 @@ static NSMutableDictionary *_sCachedAtlases;
     [[self class] cleanUp];
 }
 
-+ (void) setShareImagesBetweenIphoneRetinaAndIpadNonRetina:(BOOL)sharing {
+
++ (void) setAtlasSuffix:(NSString*)suffix forDevice:(UIUserInterfaceIdiom)device withRetinaDisplay:(BOOL)isRetinaDisplay {
     
-    _sSharingIphoneRetinaAndIpadNonRetina = sharing;
+    switch (device) {
+        case UIUserInterfaceIdiomPad: {
+            if (isRetinaDisplay) {
+                _sAtlasSuffix_iPadRetina = suffix;
+            }
+            else {
+                _sAtlasSuffix_iPadNonRetina = suffix;
+            }
+            break;
+        }
+        case UIUserInterfaceIdiomPhone: {
+            if (isRetinaDisplay) {
+                _sAtlasSuffix_iPhoneRetina = suffix;
+            }
+            break;
+        }
+        default:
+            break;
+    }
+}
+
++ (void) setTextureSuffix:(NSString*)suffix forDevice:(UIUserInterfaceIdiom)device withRetinaDisplay:(BOOL)isRetinaDisplay {
+    
+    switch (device) {
+        case UIUserInterfaceIdiomPad: {
+            if (isRetinaDisplay) {
+                _sTextureSuffix_iPadRetina = suffix;
+            }
+            else {
+                _sTextureSuffix_iPadNonRetina = suffix;
+            }
+            break;
+        }
+        case UIUserInterfaceIdiomPhone: {
+            if (isRetinaDisplay) {
+                _sTextureSuffix_iPhoneRetina = suffix;
+            }
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 #pragma mark Factory Methods
 
 + (XBSpriteNodeLoader*) createRectangleSpriteNodeLoaderFromAtlas:(NSString*)atlasName withTexture:(NSString*)textureName bodySource:(id<XBSpriteNodeLoader_RectangleBodySource>)delegate {
     
-    textureName = [self _makeFinalTextureName:textureName];
-    [self _loadOrCreateAtlasForKey:atlasName];
+    [self _preprocessAtlasName:&atlasName andTextureName:&textureName];
     return [[XBSpriteNodeLoader_Rectangle alloc] initWithTextureName:textureName andAtlasName:atlasName andBodySource:delegate];
 }
 
 + (XBSpriteNodeLoader*) createCircleSpriteNodeLoaderFromAtlas:(NSString*)atlasName withTexture:(NSString*)textureName bodySource:(id<XBSpriteNodeLoader_CircleBodySource>)delegate {
     
-    textureName = [self _makeFinalTextureName:textureName];
-    [self _loadOrCreateAtlasForKey:atlasName];
+    [self _preprocessAtlasName:&atlasName andTextureName:&textureName];
     return [[XBSpriteNodeLoader_Circle alloc] initWithTextureName:textureName andAtlasName:atlasName andBodySource:delegate];
 }
 
 + (XBSpriteNodeLoader*) createPolygonSpriteNodeLoaderFromAtlas:(NSString*)atlasName withTexture:(NSString*)textureName bodySource:(id<XBSpriteNodeLoader_PolygonBodySource>)delegate {
     
-    textureName = [self _makeFinalTextureName:textureName];
-    [self _loadOrCreateAtlasForKey:atlasName];
+    [self _preprocessAtlasName:&atlasName andTextureName:&textureName];
     return [[XBSpriteNodeLoader_Polygon alloc] initWithTextureName:textureName andAtlasName:atlasName andBodySource:delegate];
 }
 
 + (XBSpriteNodeLoader*) createEllipseSpriteNodeLoaderFromAtlas:(NSString*)atlasName withTexture:(NSString*)textureName bodySource:(id<XBSpriteNodeLoader_PolygonBodySource>)delegate {
     
-    textureName = [self _makeFinalTextureName:textureName];
-    [self _loadOrCreateAtlasForKey:atlasName];
+    [self _preprocessAtlasName:&atlasName andTextureName:&textureName];
     return [[XBSpriteNodeLoader_Polygon alloc] initWithTextureName:textureName andAtlasName:atlasName andBodySource:delegate];
 }
 
@@ -111,39 +182,11 @@ static NSMutableDictionary *_sCachedAtlases;
 
 #pragma mark Private Methods
 
-+ (NSString*) _makeFinalTextureName:(NSString*)textureName {
++ (void) _preprocessAtlasName:(NSString**)atlasNamePointer andTextureName:(NSString**)textureNamePointer {
     
-    static NSString * const AT_TWO_X = @"@2x";
-    if (_sSharingIphoneRetinaAndIpadNonRetina) {
-        if ([textureName hasSuffix:AT_TWO_X] == NO) {
-            textureName = [NSString stringWithFormat:@"%@%@", textureName, AT_TWO_X];
-        }
-    }
-    return textureName;
-}
-
-+ (SKTextureAtlas*) _tryFindAtlasName:(NSString*)atlasName {
-    
-    SKTextureAtlas *atlas = nil;
-    
-    if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) {
-        
-        // iPad, check if using retina or not.
-        if (fabs([UIScreen mainScreen].scale - 2.0) < 0.001) {
-            atlas = [SKTextureAtlas atlasNamed:[NSString stringWithFormat:@"%@%@", atlasName, @"-ipad@2x"]];
-        }
-        
-        // Either retina atlas directory doesn't exist or the screen is non-retina, try to load ipad atlas.
-        if (atlas == nil) {
-            atlas = [SKTextureAtlas atlasNamed:[NSString stringWithFormat:@"%@%@", atlasName, @"-ipad"]];
-        }
-    }
-    
-    // Either this is an iPhone or both non-retina and retina iPad folders don't exist, try to load the default folder
-    if (atlas == nil) {
-        atlas = [SKTextureAtlas atlasNamed:atlasName];
-    }
-    return atlas;
+    *atlasNamePointer = [NSString stringWithFormat:@"%@%@", *atlasNamePointer, *_sCurrentAtlasSuffix];
+    *textureNamePointer = [NSString stringWithFormat:@"%@%@", *textureNamePointer, *_sCurrentTextureSuffix];
+    [self _loadOrCreateAtlasForKey:*atlasNamePointer];
 }
 
 + (SKTextureAtlas*) _loadOrCreateAtlasForKey:(NSString*)atlasName {
@@ -157,7 +200,7 @@ static NSMutableDictionary *_sCachedAtlases;
     if (atlas == nil) {
         
         XBLog_Debug(@"Load Atlas", @"Atlas not found for key %@. To create one and add.", atlasName);
-        atlas = [self _tryFindAtlasName:atlasName];
+        atlas = [SKTextureAtlas atlasNamed:atlasName];
         if ([_sCachedAtlases count] == _sNumberOfCachedAtlas) {
             // Full, need to remove the last used element (which is at the end of the atlas name array)
             NSString *lastAtlas = [_sCachedAtlastNames lastObject];
